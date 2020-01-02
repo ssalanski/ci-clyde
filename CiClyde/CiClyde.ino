@@ -14,7 +14,11 @@
 #define PULSE_TRANSITION 0.2f
 #define PULSE_DURATION 750
 
+#define CHECK_FREQUENCY 300000
+
 RGB pulseColors[2][2]; // initialized in setup()
+
+const int16_t I2C_SLAVE_ADDRESS = 0x08;
 
 // stateful data
 boolean wasSuccessful = true;
@@ -31,14 +35,25 @@ void setup() {
   pulseColors[1][0] = COLOR_SUCCESS;
   pulseColors[1][1] = COLOR_SUCCESS_DARK;
   Serial.begin(9600);
+  Wire.begin(); // I2C master
   Clyde.begin();
   Serial.println("Clyde is Ready!");
 }
 
-unsigned long now, lastPulse = 0;
+void queryCiModule() {
+  int resp = Wire.requestFrom(I2C_SLAVE_ADDRESS, 2); // request 2 bytes
+  wasSuccessful = Wire.read(); // first byte
+  isActive = Wire.read(); // second byte
+}
+
+unsigned long now, lastPulse = 0, lastCheck = 0;
 void loop() {
+  now = millis();
+  if(now-lastCheck > CHECK_FREQUENCY) {
+    queryCiModule();
+    lastCheck = now;
+  }
   if(isActive) {
-    now = millis();
     if(now-lastPulse > PULSE_DURATION) {
       darkPulse = !darkPulse;
       lastPulse = now;
