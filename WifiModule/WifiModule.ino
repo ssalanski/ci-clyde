@@ -1,10 +1,22 @@
 #include <ESP8266WiFi.h>
 #include <ESP8266HTTPClient.h>
-
 #include "secrets.h"
+
+#include <Wire.h>
+
+// I2C pin numbers on the wemos d1 mini
+#define D1 5
+#define D2 4
+#define SCL_PIN D1
+#define SDA_PIN D2
+
+const int16_t I2C_SLAVE_ADDRESS = 0x08; // must match address refered to by CiClyde
 
 void setup() {
   Serial.begin(115200);
+  
+  Wire.begin(SDA_PIN, SCL_PIN, I2C_SLAVE_ADDRESS);
+  Wire.onRequest(checkBamboo);
 
   // We start by connecting to a WiFi network
   Serial.println();
@@ -29,7 +41,9 @@ void setup() {
   Serial.println(WiFi.localIP());
 }
 
-void loop() {
+void checkBamboo() {
+  boolean isActive = false;
+  boolean wasSuccessful = true;
   // Use WiFiClient class to create TCP connections
   WiFiClient client;
   HTTPClient http;
@@ -50,7 +64,8 @@ void loop() {
         // file found at server
         if (httpCode == HTTP_CODE_OK || httpCode == HTTP_CODE_MOVED_PERMANENTLY) {
           String payload = http.getString();
-          Serial.println(payload);
+          wasSuccessful = true; // TODO: parse payload response json
+          isActive = false; // TODO: parse payload response json
         }
       } else {
         Serial.printf("[HTTP] GET... failed, error: %s\n", http.errorToString(httpCode).c_str());
@@ -59,6 +74,8 @@ void loop() {
       http.end();
     } else {
       Serial.printf("[HTTP} Unable to connect\n");
+      wasSuccessful = false; // TODO: send separate error information, instead of overloading build status
+      isActive = true;
     }
 
   // Close the connection
@@ -66,5 +83,10 @@ void loop() {
   Serial.println("closing connection");
   client.stop();
 
-  delay(300000); // execute once every 5 minutes, don't flood remote service
+  Wire.write(wasSuccessful); // first byte
+  Wire.write(isActive); // second byte
+}
+
+void loop() {
+  delay(50);
 }
