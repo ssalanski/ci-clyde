@@ -1,12 +1,7 @@
 #include <ESP8266WiFi.h>
 #include <ESP8266HTTPClient.h>
 
-// wifi connection info
-#define STASSID ""
-#define STAPSK  ""
-
-const char* ssid     = STASSID;
-const char* password = STAPSK;
+#include "secrets.h"
 
 void setup() {
   Serial.begin(115200);
@@ -21,7 +16,7 @@ void setup() {
      would try to act as both a client and an access-point and could cause
      network-issues with your other WiFi-devices on your WiFi-network. */
   WiFi.mode(WIFI_STA);
-  WiFi.begin(ssid, password);
+  WiFi.begin(ssid, wifipw);
 
   while (WiFi.status() != WL_CONNECTED) {
     delay(500);
@@ -39,8 +34,8 @@ void loop() {
   WiFiClient client;
   HTTPClient http;
   Serial.print("[HTTP] begin...\n");
-    if (http.begin(client, "")) {
-      http.setAuthorization("","");
+    if (http.begin(client, plan_url)) {
+      http.setAuthorization(bamboo_user, bamboo_pw);
       http.addHeader("Accept", "application/json");
 
       Serial.print("[HTTP] GET...\n");
