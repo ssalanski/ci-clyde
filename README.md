@@ -13,6 +13,6 @@ Clyde runs on the Atmel MEGA32U4, which is fully Arduino compatible. This makes 
 Since Clyde does not have any wireless communication included, additional hardware is needed to accomplish the goal of communicating with a CI web server. The original intention of the kickstarter was to include extension modules that would add functionality, and so this project aims to create a custom module to fit that pattern (roughly).
 
 ### environment
-Since Clyde is rather old, the official repository of code does not work smoothly with the latest version of the Arduino IDE and avrdude. Rather than try to update it, older versions of the Arduino IDE are available [from the Arduino website](https://www.arduino.cc/en/main/OldSoftwareReleases), and using 1.0.5-r2 seems to work without issue.
+Since Clyde is rather old, the [official repository](https://github.com/fabule/Clyde) does not work smoothly with the latest version of the Arduino IDE and avrdude. Rather than try to update it, older versions of the Arduino IDE are available [from the Arduino website](https://www.arduino.cc/en/main/OldSoftwareReleases), and using 1.0.5-r2 seems to work without issue.
 
 That being said, programming the ESP8266 is much easier with the latest libraries, especially considering that I2C support was not added to the library until ~2018, so programming for the wifi add-on module should be done in whatever most recent version is available, with the latest ESP8266 boards and libraries.
